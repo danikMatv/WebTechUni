@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/cars")
+@RequestMapping("/cars")
 @RequiredArgsConstructor
 @Validated
 public class CarController {
@@ -23,9 +22,19 @@ public class CarController {
     private final CarService carService;
 
     @GetMapping
-    public ResponseEntity<List<CarResponse>> getAllCars(@RequestParam(required = false) String brand,@RequestParam(required = false) String model,
-                                                        @RequestParam(defaultValue = "0") int offset,@RequestParam(defaultValue = "10") int limit) {
-        List<CarResponse> cars = carService.findAllCars(Optional.ofNullable(brand),Optional.ofNullable(model),offset,limit);
+    public ResponseEntity<?> getAllCars(@RequestParam(required = false) String count) {
+        if (count != null) {
+            long carCount = carService.getCountAllCars();
+            return ResponseEntity.ok(carCount);
+        }
+        List<CarResponse> cars = carService.getAllCars();
+        return ResponseEntity.ok(cars);
+    }
+
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<CarResponse>> filterCars(@RequestParam(defaultValue = "") List<String> filters) {
+        List<CarResponse> cars = carService.filterCar(filters);
         return ResponseEntity.ok(cars);
     }
 
